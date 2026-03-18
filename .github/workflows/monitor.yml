@@ -1,0 +1,42 @@
+name: URL Monitor
+
+on:
+  schedule:
+    # Runs every hour — adjust cron as needed
+    # Examples: every 30 min: '*/30 * * * *', every 6h: '0 */6 * * *'
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  check-urls:
+    runs-on: ubuntu-latest
+
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Restore cached URL hashes from the previous run
+      - name: Restore URL hash cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: url-hashes-${{ runner.os }}
+          restore-keys: |
+            url-hashes-
+
+      - name: Check URLs for changes
+        run: |
+          python3 monitor.py \
+            "https://example.com/page-one" \
+            "https://example.com/page-two"
+
+      # Always save the updated hashes, even if a change was detected
+      - name: Save URL hash cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .cache
+          key: url-hashes-${{ runner.os }}-${{ github.run_id }}
