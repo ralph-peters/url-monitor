@@ -18,12 +18,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Restore cached URL hashes from the previous run
-      - name: Restore or save URL hash cache
-        uses: actions/cache@v4
+      - name: Restore URL hash cache
+        uses: actions/cache/restore@v4
         with:
           path: .cache
-          key: url-hashes-${{ runner.os }}
+          key: url-hashes-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            url-hashes-${{ runner.os }}-
 
       - name: Check URLs for changes
         run: |
@@ -31,3 +32,10 @@ jobs:
             "https://nos.nl/" \
             "https://www.shopware.com/nl/changelog/" \
             "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html"
+
+      - name: Save URL hash cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .cache
+          key: url-hashes-${{ runner.os }}-${{ github.run_id }}
