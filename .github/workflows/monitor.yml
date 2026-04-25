@@ -23,19 +23,31 @@ jobs:
         with:
           php-version: '8.3'
           extensions: mbstring, curl, dom, json
+          coverage: none
+
+      - name: Show PHP version and extensions
+        run: |
+          php --version
+          php -m
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --verbose
 
       - name: Run tests
-        run: ./vendor/bin/phpunit --testdox
+        run: ./vendor/bin/phpunit --testdox --display-warnings
 
       - name: Check URLs for changes
         run: |
-          php monitor.php \
-            "https://nos.nl/" \
-            "https://www.shopware.com/nl/changelog/" \
-            "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html"
+          echo "--- Checking: https://nos.nl/ ---"
+          php monitor.php "https://nos.nl/"
+
+          echo ""
+          echo "--- Checking: https://www.shopware.com/nl/changelog/ ---"
+          php monitor.php "https://www.shopware.com/nl/changelog/"
+
+          echo ""
+          echo "--- Checking: https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html ---"
+          php monitor.php "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html"
 
       - name: Commit updated hashes
         run: |
