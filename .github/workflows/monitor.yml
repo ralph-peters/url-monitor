@@ -18,17 +18,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, curl, dom, json
-          coverage: none
-
-      - name: Show PHP version and extensions
+      - name: Set up PHP extensions
         run: |
+          sudo apt-get update -q
+          sudo apt-get install -y php-cli php-mbstring php-curl php-dom php-xml
           php --version
-          php -m
+          php -m | grep -E "mbstring|curl|dom|xml|json"
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --verbose
