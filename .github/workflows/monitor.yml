@@ -21,12 +21,13 @@ jobs:
       - name: Set up PHP extensions
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y php-cli php-mbstring php-curl php-dom php-xml
+          sudo apt-get install -y php-cli php-mbstring php-curl php-xml composer
           php --version
+          composer --version
           php -m | grep -E "mbstring|curl|dom|xml|json"
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --verbose
+        run: composer install --no-interaction --prefer-dist
 
       - name: Run tests
         run: ./vendor/bin/phpunit --testdox --display-warnings
