@@ -11,6 +11,23 @@ Two URLs use custom extractors that track the latest security release per Shopwa
 
 Extracted values and plain hashes are cached in `.cache/` and committed back to the repo after each run.
 
+## GitHub Actions
+
+The workflow is defined in `.github/workflows/monitor.yml` and runs automatically every hour (`0 * * * *`). Each run:
+
+1. Installs PHP and Composer dependencies
+2. Runs the PHPUnit test suite — the workflow fails early if any test fails
+3. Checks each monitored URL and sends a Slack notification if a change is detected
+4. Commits any updated cache files back to the repo as `chore: update URL hashes`
+
+**Triggering a manual run:** go to the repository on GitHub → Actions → URL Monitor → Run workflow.
+
+**Slack notifications** are sent via a webhook configured as the `SLACK_WEBHOOK_URL` repository secret (Settings → Secrets and variables → Actions).
+
+**Adjusting the schedule:** edit the cron expression in `.github/workflows/monitor.yml`. Examples:
+- Every 30 minutes: `*/30 * * * *`
+- Every 6 hours: `0 */6 * * *`
+
 ## Requirements
 
 - PHP 8.2+
