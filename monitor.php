@@ -26,6 +26,13 @@ class Monitor
         'https://www.shopware.com/nl/changelog/' => 'extractShopwareSecurityVersions',
     ];
 
+    // Human-readable cache filenames keyed by URL; falls back to md5(url).json.
+    private const CACHE_NAMES = [
+        'https://www.shopware.com/nl/changelog/'                                        => 'shopware-6-changelog.json',
+        'https://nos.nl/'                                                               => 'nos.json',
+        'https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html' => 'shopware-6-security-plugin-changelog.json',
+    ];
+
     // -------------------------------------------------------------------------
     // Entry point
     // -------------------------------------------------------------------------
@@ -229,7 +236,8 @@ class Monitor
 
     public static function cachePath(string $url): string
     {
-        return self::CACHE_DIR . '/' . hash('md5', $url) . '.json';
+        $name = self::CACHE_NAMES[$url] ?? hash('md5', $url) . '.json';
+        return self::CACHE_DIR . '/' . $name;
     }
 
     public static function loadCached(string $url): ?array
