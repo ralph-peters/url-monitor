@@ -1,5 +1,9 @@
 {
     "url": "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html",
-    "last_checked": "2026-04-25T17:56:15+00:00",
-    "hash": "7d469a75a81043ffb00aa4aed2e542e0c02bfda00cf89bb2ef125f0665906a3b"
+    "last_checked": "2026-04-25T18:31:03+00:00",
+    "extracted": {
+        "6.5": "2.0.19",
+        "6.6": "3.0.14",
+        "6.7": "4.0.9"
+    }
 }
