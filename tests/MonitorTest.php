@@ -10,7 +10,7 @@ class MonitorTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$fixture = file_get_contents(__DIR__ . '/fixtures/shopware_changelog.html');
+        self::$fixture = file_get_contents(__DIR__ . '/fixtures/shopware-6-changelog.html');
     }
 
     public function testLatestSecurityVersionPerBranch(): void
