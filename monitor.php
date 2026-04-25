@@ -188,6 +188,8 @@ class Monitor
             }
         }
 
+        ksort($latestPerBranch);
+
         return $latestPerBranch;
     }
 
