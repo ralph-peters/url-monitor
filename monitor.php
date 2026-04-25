@@ -23,13 +23,13 @@ class Monitor
 
     // Maps URLs to the name of their custom extractor method on this class.
     private const EXTRACTORS = [
-        'https://www.shopware.com/nl/changelog/' => 'extractShopwareSecurityVersions',
+        'https://www.shopware.com/nl/changelog/'                                          => 'extractShopwareSecurityVersions',
+        'https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html' => 'extractShopwareSecurityPluginVersions',
     ];
 
     // Human-readable cache filenames keyed by URL; falls back to md5(url).json.
     private const CACHE_NAMES = [
-        'https://www.shopware.com/nl/changelog/'                                        => 'shopware-6-changelog.json',
-        'https://nos.nl/'                                                               => 'nos.json',
+        'https://www.shopware.com/nl/changelog/'                                          => 'shopware-6-changelog.json',
         'https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html' => 'shopware-6-security-plugin-changelog.json',
     ];
 
@@ -192,6 +192,38 @@ class Monitor
                 if (!isset($latestPerBranch[$branch])) {
                     $latestPerBranch[$branch] = $version;
                 }
+            }
+        }
+
+        ksort($latestPerBranch);
+
+        return $latestPerBranch;
+    }
+
+    /**
+     * Return the latest plugin version per Shopware branch from the store changelog.
+     *
+     * All entries are security releases. The plugin major version maps to a branch:
+     *   2.x → 6.5,  3.x → 6.6,  4.x → 6.7
+     *
+     * Returns e.g. ['6.5' => '2.0.19', '6.6' => '3.0.14', '6.7' => '4.0.9'].
+     */
+    public static function extractShopwareSecurityPluginVersions(string $content): array
+    {
+        $branchMap = ['2' => '6.5', '3' => '6.6', '4' => '6.7'];
+
+        preg_match_all(
+            '/<h3[^>]*class="changelogs-header"[^>]*>\s*(\d+\.\d+\.\d+)\s/s',
+            $content,
+            $matches
+        );
+
+        $latestPerBranch = [];
+        foreach ($matches[1] as $version) {
+            $major  = explode('.', $version)[0];
+            $branch = $branchMap[$major] ?? null;
+            if ($branch !== null && !isset($latestPerBranch[$branch])) {
+                $latestPerBranch[$branch] = $version;
             }
         }
 

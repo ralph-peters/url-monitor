@@ -44,7 +44,6 @@ def hash_content(content: str) -> str:
 
 CACHE_NAMES: dict[str, str] = {
     "https://www.shopware.com/nl/changelog/": "shopware-6-changelog.json",
-    "https://nos.nl/": "nos.json",
     "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html": "shopware-6-security-plugin-changelog.json",
 }
 
@@ -126,7 +125,27 @@ def extract_shopware_security_versions(content: str) -> dict[str, str]:
             branch = ".".join(version.split(".")[:2])  # "6.5", "6.6", "6.7"
             if branch not in latest_per_branch:
                 latest_per_branch[branch] = version
-    return latest_per_branch
+    return dict(sorted(latest_per_branch.items()))
+
+
+def extract_shopware_security_plugin_versions(content: str) -> dict[str, str]:
+    """
+    Return the latest plugin version per Shopware branch from the store changelog.
+
+    All entries are security releases. The plugin major version maps to a branch:
+      2.x → 6.5,  3.x → 6.6,  4.x → 6.7
+
+    Returns a dict like {"6.5": "2.0.19", "6.6": "3.0.14", "6.7": "4.0.9"}.
+    """
+    branch_map = {"2": "6.5", "3": "6.6", "4": "6.7"}
+    latest_per_branch: dict[str, str] = {}
+    for m in re.finditer(r'<h3[^>]*class="changelogs-header"[^>]*>\s*(\d+\.\d+\.\d+)\s', content, re.DOTALL):
+        version = m.group(1)
+        major = version.split(".")[0]
+        branch = branch_map.get(major)
+        if branch and branch not in latest_per_branch:
+            latest_per_branch[branch] = version
+    return dict(sorted(latest_per_branch.items()))
 
 
 # Maps a URL to a custom extractor function. Extractors receive the raw HTML
@@ -134,6 +153,7 @@ def extract_shopware_security_versions(content: str) -> dict[str, str]:
 # runs. Only the extracted signal triggers notifications.
 EXTRACTORS: dict[str, callable] = {
     "https://www.shopware.com/nl/changelog/": extract_shopware_security_versions,
+    "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html": extract_shopware_security_plugin_versions,
 }
 
 

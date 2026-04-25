@@ -11,6 +11,9 @@ jobs:
   check-urls:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -34,10 +37,6 @@ jobs:
 
       - name: Check URLs for changes
         run: |
-          echo "--- Checking: https://nos.nl/ ---"
-          php monitor.php "https://nos.nl/"
-
-          echo ""
           echo "--- Checking: https://www.shopware.com/nl/changelog/ ---"
           php monitor.php "https://www.shopware.com/nl/changelog/"
 
