@@ -18,9 +18,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, curl, dom, json
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit --testdox
+
       - name: Check URLs for changes
         run: |
-          python3 monitor.py \
+          php monitor.php \
             "https://nos.nl/" \
             "https://www.shopware.com/nl/changelog/" \
             "https://store.shopware.com/en/swag136939272659f/shopware-6-security-plugin.html"
