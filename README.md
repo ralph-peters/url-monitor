@@ -32,6 +32,12 @@ The workflow is defined in `.github/workflows/monitor.yml` and runs automaticall
 
 - PHP 8.2+
 - Extensions: `curl`, `mbstring`, `xml`
+
+  On Ubuntu/Debian (add the PPA first if packages are not found):
+  ```bash
+  sudo add-apt-repository ppa:ondrej/php && sudo apt update
+  sudo apt install php8.3-curl php8.3-mbstring php8.3-xml
+  ```
 - Composer
 
 ## Running locally

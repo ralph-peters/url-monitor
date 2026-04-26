@@ -2,44 +2,53 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ShopwareSecurityPluginChangelogTest extends TestCase
 {
-    private static string $fixture;
-
-    public static function setUpBeforeClass(): void
+    public static function fixtureProvider(): array
     {
-        self::$fixture = file_get_contents(__DIR__ . '/fixtures/shopware-6-security-plugin-changelog.html');
+        return [
+            '2026-01-01' => [
+                'fixture'          => 'shopware-6-security-plugin-changelog-2026-01-01.html',
+                'expectedVersions' => ['6.5' => '2.0.14', '6.6' => '3.0.10', '6.7' => '4.0.4'],
+            ],
+            '2026-04-24' => [
+                'fixture'          => 'shopware-6-security-plugin-changelog-2026-04-24.html',
+                'expectedVersions' => ['6.5' => '2.0.19', '6.6' => '3.0.14', '6.7' => '4.0.9'],
+            ],
+        ];
     }
 
-    public function testLatestVersionPerBranch(): void
+    #[DataProvider('fixtureProvider')]
+    public function testLatestVersionPerBranch(string $fixture, array $expectedVersions): void
     {
-        $result = Monitor::extractShopwareSecurityPluginVersions(self::$fixture);
+        $content = file_get_contents(__DIR__ . '/fixtures/' . $fixture);
+        $result  = Monitor::extractShopwareSecurityPluginVersions($content);
 
-        $this->assertSame([
-            '6.5' => '2.0.19',
-            '6.6' => '3.0.14',
-            '6.7' => '4.0.9',
-        ], $result);
+        $this->assertSame($expectedVersions, $result);
     }
 
-    public function testOnlyTracksKnownBranches(): void
+    #[DataProvider('fixtureProvider')]
+    public function testOnlyTracksKnownBranches(string $fixture, array $expectedVersions): void
     {
-        $result = Monitor::extractShopwareSecurityPluginVersions(self::$fixture);
+        $content = file_get_contents(__DIR__ . '/fixtures/' . $fixture);
+        $result  = Monitor::extractShopwareSecurityPluginVersions($content);
 
         foreach (array_keys($result) as $branch) {
             $this->assertStringStartsWith('6.', $branch, "Unexpected branch: {$branch}");
         }
     }
 
-    public function testTakesNewestVersionPerBranch(): void
+    #[DataProvider('fixtureProvider')]
+    public function testTakesNewestVersionPerBranch(string $fixture, array $expectedVersions): void
     {
-        $result = Monitor::extractShopwareSecurityPluginVersions(self::$fixture);
+        $content = file_get_contents(__DIR__ . '/fixtures/' . $fixture);
+        $result  = Monitor::extractShopwareSecurityPluginVersions($content);
 
-        // 2.0.18 and 2.0.17 appear later in the changelog — only 2.0.19 should be returned
-        $this->assertSame('2.0.19', $result['6.5']);
-        $this->assertSame('3.0.14', $result['6.6']);
-        $this->assertSame('4.0.9', $result['6.7']);
+        foreach ($expectedVersions as $branch => $version) {
+            $this->assertSame($version, $result[$branch]);
+        }
     }
 }
